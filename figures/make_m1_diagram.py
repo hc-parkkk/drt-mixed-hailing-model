@@ -44,7 +44,7 @@ def arrow(ax, s, e, color, patchA, patchB, curve=0.0, lw=2.4, ls="-", z=3):
 
 
 def main():
-    fig, ax = plt.subplots(figsize=(13.5, 5.6))
+    fig, ax = plt.subplots(figsize=(10.5, 4.6))
     states = [(i, j) for i in range(CAPA + 1) for j in range(CAPA + 1)
               if i + j <= CAPA]
     circles = {}
@@ -93,7 +93,7 @@ def main():
     anchor_x, anchor_y = CAPA * DX + 0.9, -CAPA * DY / 2.0
     ax.legend(handles=handles, loc="center left",
              bbox_to_anchor=(anchor_x, anchor_y), bbox_transform=ax.transData,
-             ncol=1, fontsize=14, frameon=False, handlelength=2.2,
+             ncol=1, fontsize=12, frameon=False, handlelength=2.2,
              labelspacing=0.9)
 
     ax.set_xlim(-1.3, CAPA * DX + 6.3)

@@ -2,7 +2,7 @@ import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent))
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent))
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent / "figures"))
-"""Monte Carlo check of the catchment probability, Eq. (9) (Section 3.3, Table 4).
+"""Monte Carlo check of the catchment probability, Eq. (9) (Section 4.2, Table 4, single-trip rows).
 
 Single-leg paths test Eq. (9) itself; pooled routes of state (i, j) give state-dependent absorption
 probabilities, which are then substituted into the model to measure the effect on its outputs.

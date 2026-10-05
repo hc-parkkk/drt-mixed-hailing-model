@@ -1,12 +1,12 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 title: "drt-mixed-hailing-model: analytical model of demand-responsive transit with mixed hailing and a heterogeneous fleet"
-version: 1.0.0
+version: 1.1.0
 license: MIT
 abstract: >-
   Steady-state workload-state queueing model of pooling-enabled demand-responsive transit serving
   e-hail and street-hail users with autonomous vehicles (e-hail only) and human-driven vehicles
-  (both modes), with balking, and scripts that reproduce the figures and tables of the paper.
+  (both modes), with patience limits, and scripts that reproduce the figures and tables of the paper.
 keywords:
   - demand-responsive transit
   - ride-pooling

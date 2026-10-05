@@ -4,8 +4,7 @@ Analytical model of a pooling-enabled demand-responsive transit (DRT) service th
 **e-hailing** and **street-hailing** users with a **heterogeneous fleet** of autonomous vehicles (AVs),
 which serve e-hail requests only, and human-driven vehicles (HVs), which serve both. It accompanies the paper
 
-> H. Park, S. Kang, *An analytical model of demand-responsive transit with mixed hailing and a heterogeneous
-> fleet* (submitted to Transportation Research Part B).
+> H. Park, S. Kang, *Mixed hailing and a heterogeneous fleet in demand-responsive transit: An analytical model for service planning* (submitted to Transportation Research Part B).
 
 ## Model
 
@@ -19,8 +18,8 @@ with i + j ≤ capa. Vehicles move between states through four links:
 | drop-off | (i, j) → (i−1, j) | vehicles with i ≥ 1 |
 | street-hail absorption | (i, j) → (i+1, j) | HVs with a spare seat (idle HVs fully, en-route HVs through a catchment probability) |
 
-Users balk: an e-hail request is abandoned if the nearest eligible vehicle cannot arrive within
-`te_max`, and a street-hail user leaves after `wt_max`. The steady state is the solution of the flow
+Users have patience limits: an e-hail request is abandoned if the nearest eligible vehicle cannot arrive
+within `te_max`, and a street-hail user leaves after waiting `wt_max`. The steady state is the solution of the flow
 balance of every state, found by a damped fixed-point iteration on the e-hail-eligible pool n^E and the
 effective street-hail availability n^S. Outputs include the service probability, waiting time, and unmet
 demand of each hailing mode, the mean in-vehicle time (Little's law), and a generalized social cost.
@@ -47,7 +46,6 @@ print("social cost per trip [h]:", model.social_cost(res))
 ```
 
 Units are km and hours (speed in km/h, demand density in trips per km² per hour).
-`HybridDRTParams(av_street_idle=True)` lets idle AVs also pick up street-hail users.
 
 ## Reproducing the paper
 
@@ -58,13 +56,19 @@ bash reproduce_all.sh
 | Script | Paper |
 |---|---|
 | `figures/make_m1_diagram.py` | Fig. 1 |
-| `figures/analysis_figures.py D3/D0/D1/D2/D4/E3/E4/E4B/E6 --en` | Figs. 2, 3, 4, 5, 6, 7, 8, 9, 10 |
-| `figures/sensitivity_figures.py F7/F8/F6 --en` | Figs. 11, 12 and Table 6 |
-| `scripts/mc_catchment.py` | Table 4 (Monte Carlo check of the catchment probability) |
-| `scripts/uniqueness_check.py` | Section 3.4 (existence and uniqueness of the equilibrium) |
-| `scripts/sensitivity_rstar.py` | Table 5 (sensitivity of the cost-minimizing AV share) |
+| `figures/analysis_figures.py D3 D0 --en` | Figs. 2 and 3 |
+| `scripts/mc_catchment.py` | Table 4, single-trip rows |
+| `scripts/mc_states_extended.py` | Table 4, sampled probabilities of pooled routes |
+| `scripts/verification_grid.py` | Table 4, ratios and effects on the outputs; data for Fig. 4 |
+| `figures/uniqueness_figure.py` | Fig. 4 |
+| `figures/analysis_figures.py D1 D2 D4 E3 E4 E4B E6 --en` | Figs. 5 to 11 |
+| `scripts/sensitivity_rstar.py` | Table 5 |
+| `figures/sensitivity_figures.py F7 F8 --en` | Figs. 12 and 13 |
+| `figures/sensitivity_figures.py F6 --en` | Table 6 |
 
-Outputs are written to `outputs/`. The Dongtan case-study parameters are defined as `BASE` in
+Outputs are written to `outputs/`. `mc_states_extended.py` and `verification_grid.py` sample and solve
+many cases and run in parallel on all available cores; `verification_grid.py` reads the output of
+`mc_states_extended.py`. The Dongtan case-study parameters are defined as `BASE` in
 `figures/analysis_figures.py`. Figure labels are available in Korean (default) and English (`--en`).
 
 ## License

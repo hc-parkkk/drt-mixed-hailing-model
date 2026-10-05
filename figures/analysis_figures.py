@@ -2,7 +2,7 @@ import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent))
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent))
 # -*- coding: utf-8 -*-
-"""Figures 2-10 of the paper (run with --en for English labels). Usage: python analysis_figures.py D1 --en"""
+"""Figures 2, 3, and 5-11 of the paper (run with --en for English labels). Usage: python analysis_figures.py D1 --en"""
 
 import os
 import sys
@@ -904,7 +904,7 @@ def fig_D1():
             rows.append(dict(panel="mc", demand=dem, form=fname, capa=capa_s, val=mc))
     df = pd.DataFrame(rows)
 
-    fig = plt.figure(figsize=(8.6, 3.7))
+    fig = plt.figure(figsize=(7.0, 3.3))
     gs = fig.add_gridspec(1, 2, wspace=0.26, top=0.86, bottom=0.14, left=0.08, right=0.97)
     ax = fig.add_subplot(gs[0, 0])
 
@@ -914,9 +914,9 @@ def fig_D1():
         if not valid.empty and valid.rho.max() < rho_grid.max() - 1e-6:
             x_end, y_end = valid.rho.iloc[-1], valid.val.iloc[-1]
             ax.plot(x_end, y_end, marker="o", color=color, ms=5, zorder=5, lw=0)
-            ax.text(x_end, y_end + lim_dy, f"η={lim:.2f}", fontsize=8.3,
-                    color=color, ha="center", zorder=6,
-                    va="bottom" if lim_dy > 0 else "top",
+            left = lim < 0.65   # label to the left of the taxi end point, to the right otherwise
+            ax.text(x_end + (-0.025 if left else 0.025), y_end, f"η={lim:.2f}", fontsize=8.3,
+                    color=color, ha="right" if left else "left", zorder=6, va="center",
                     bbox=dict(boxstyle="round,pad=0.12", facecolor="white",
                               edgecolor="none", alpha=0.85))
 
@@ -930,12 +930,12 @@ def fig_D1():
             _plot_with_collapse_marker(sub, color_fn(capa), 2.1, ls,
                                        T(f"{fname}, 정원={capa}", f"{fname}, capa = {capa}"),
                                        limit_vals[(capa, rule)], lim_dy)
-    ax.set_ylim(top=ax.get_ylim()[1] * 1.08)
+    ax.set_ylim(top=ax.get_ylim()[1] * 1.22)
     ax.axvline(1.0, color=INK2, lw=1.2, ls="--", zorder=1)
     ax.text(1.0, 0.05, T("1인 승차 한계", "single-occupancy limit"),
             fontsize=8.3, color=INK2, ha="center", va="bottom",
             transform=ax.get_xaxis_transform())
-    ax.set_xlim(0, rho_grid.max())
+    ax.set_xlim(0, rho_grid.max() + 0.13)
     ax.set_xlabel(T("부하율 (η)", "load factor (η)"))
     ax.set_ylabel(T("e-hail 대기시간 [분]", "e-hail waiting time [min]"))
     _panel_tag(ax, "a", corner="upper right")
@@ -946,8 +946,7 @@ def fig_D1():
     dem_ref = np.linspace(0, dem_grid.max(), 50)
     ax.plot(dem_ref, dem_ref * BASE.l / BASE.v, color=CAT["yellow"], lw=2.6,
             ls=(0, (2, 2)), zorder=1,
-            label=T("1인 승차 작업량 (수요×평균 차내시간)",
-                    "single-occupancy workload (demand × mean ride time)"))
+            label=T("1인 승차 작업량", "single-occupancy workload"))
     for fname, capa_s, rule, flex, color, ls in mc_cfgs:
         sub = mc_df[mc_df.form == fname].sort_values("demand")
         ax.plot(sub.demand, sub.val, color=color, lw=2.2, ls=ls, label=fname)
@@ -958,8 +957,8 @@ def fig_D1():
     v_drt = np.interp(d_mark, s_drt.demand, s_drt.val)
     ax.annotate("", xy=(d_mark, v_drt), xytext=(d_mark, v_taxi),
                 arrowprops=dict(arrowstyle="<->", color=INK, lw=2.2))
-    ax.text(d_mark - 12, (v_taxi + v_drt) / 2, f"-{(1 - v_drt / v_taxi) * 100:.0f}%",
-            fontsize=12, color=INK, ha="right", va="center", fontweight="bold",
+    ax.text(d_mark + 12, (v_taxi + v_drt) / 2 - 2, f"-{(1 - v_drt / v_taxi) * 100:.0f}%",
+            fontsize=11, color=INK, ha="left", va="center", fontweight="bold",
             bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="none", alpha=0.85))
     ax.set_xlim(0, dem_grid.max())
     ax.set_ylim(bottom=0)
@@ -1199,7 +1198,7 @@ def fig_D3():
                                  T_w_min=np.nan if diverged else Tw, unmet_pct=np.nan))
     df = pd.DataFrame(rows)
 
-    fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.6))
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 3.6))
     from matplotlib.colors import ListedColormap, BoundaryNorm
     levels = [0.0, 0.5, 2, 5, 10, 20, 35, 50, 70, 100]
     band_colors = ["#ffffff", "#c3d9f0", "#8fbce4", "#5d9bd5", "#3579c2",
@@ -1210,11 +1209,11 @@ def fig_D3():
     Pg, Mg = np.meshgrid(p_map, m_map)
     cf = ax.contourf(Pg, Mg, U, levels=levels, cmap=nb_cmap, norm=nb_norm, extend="max")
     cb = fig.colorbar(cf, ax=ax)
-    _colorbar_title(cb, T("발킹 있음:\n미충족 수요 [%]", "with balking:\nunmet demand [%]"),
+    _colorbar_title(cb, T("인내 한계 있음:\n미충족 수요 [%]", "with patience limits:\nunmet demand [%]"),
                     fontsize=7, ticklabelsize=7)
     ax.plot(p_map, m_cliff, color=CAT["red"], lw=2.4,
-            label=T("발킹 없음", "without balking"))
-    ax.set_xlabel(T("e-hailing 비율 (p)", "e-hail proportion ($p$)"), fontsize=9)
+            label=T("인내 한계 없음", "without patience limits"))
+    ax.set_xlabel(T("e-hailing 비율 (p)", "e-hail proportion ($\\theta_E$)"), fontsize=9)
     ax.set_ylabel(T("차량 대수 (m)", "fleet size ($m$)"), fontsize=9)
     ax.legend(fontsize=7.5, frameon=False, loc="upper right")
     _panel_tag(ax, "a", linespacing=1.3, labelpad=3)
@@ -1236,14 +1235,14 @@ def fig_D3():
         else:
             sub_trunc = sub
         line, = ax.plot(sub_trunc.m, sub_trunc.T_w_min, color=color, lw=2.1,
-                        label=T(f"발킹 있음, p={p}", f"with balking, $p$={p}"))
+                        label=T(f"인내 한계 있음, p={p}", f"with patience limits, $\\theta_E$={p}"))
         with_handles.append(line)
-        with_labels.append(T(f"발킹 있음, p={p}", f"with balking, $p$={p}"))
+        with_labels.append(T(f"인내 한계 있음, p={p}", f"with patience limits, $\\theta_E$={p}"))
         sub = df[(df.panel == "cut") & (df.p == p) & (df.balking == False)].sort_values("m")  # noqa: E712
         line, = ax.plot(sub.m, sub.T_w_min, color=color, lw=2.1, ls=(0, (4, 2)),
-                        label=T(f"발킹 없음, p={p}", f"without balking, $p$={p}"))
+                        label=T(f"인내 한계 없음, p={p}", f"without patience limits, $\\theta_E$={p}"))
         without_handles.append(line)
-        without_labels.append(T(f"발킹 없음, p={p}", f"without balking, $p$={p}"))
+        without_labels.append(T(f"인내 한계 없음, p={p}", f"without patience limits, $\\theta_E$={p}"))
     ax.set_ylim(top=y_top)
     ax.set_yticks([5, 10, 20, 40, 60])
     ax.yaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
@@ -1259,8 +1258,8 @@ def fig_D3():
         labels += [wl, ol]
     fig.tight_layout(rect=(0, 0.13, 1, 0.97))
     b_cx = (axes[1].get_position().x0 + axes[1].get_position().x1) / 2.0
-    fig.legend(handles, labels, ncol=3, frameon=False, fontsize=7,
-               loc="upper center", bbox_to_anchor=(b_cx, 0.11))
+    fig.legend(handles, labels, ncol=3, frameon=False, fontsize=8,
+               loc="upper center", bbox_to_anchor=(0.5, 0.11))
     _recenter_colorbar_title(fig, cb)
     return df, fig
 
@@ -1363,7 +1362,7 @@ def fig_E3():
                 dz_pct=(after["z_beta"] - before["z_beta"]) / before["z_beta"] * 100))
     df = pd.DataFrame(rows)
 
-    fig = plt.figure(figsize=(8.6, 8.2))
+    fig = plt.figure(figsize=(7.0, 7.0))
     gs = fig.add_gridspec(3, 2, hspace=0.45, wspace=0.20,
                           top=0.91, bottom=0.12, left=0.10, right=0.97)
     ax_a = fig.add_subplot(gs[0, 0])
@@ -1453,11 +1452,11 @@ def fig_D0():
     df = pd.DataFrame(rows)
 
     OUR = T("본 모형", "Our model")
-    DO = "Daganzo and Ouyang (2019)"
+    DO = "Daganzo and Ouyang (2019a)"
     N01 = T("n01", "$n_{01}$")
     N10 = T("n10", "$n_{10}$")
 
-    fig, axes = plt.subplots(1, 2, figsize=(7.5, 3.1))
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 3.0))
     ax = axes[0]
     sub01 = df[df.panel == "do3_n01"]
     sub10 = df[df.panel == "do3_n10"]
@@ -1634,7 +1633,7 @@ def fig_E4():
                              overall_min=p_ref * TwE + (1 - p_ref) * WS))
     df = pd.DataFrame(rows)
 
-    fig = plt.figure(figsize=(8.4, 6.2))
+    fig = plt.figure(figsize=(7.0, 5.4))
     gs = fig.add_gridspec(2, 2, hspace=0.45, wspace=0.25,
                           top=0.86, bottom=0.15, left=0.09, right=0.97)
     ax00 = fig.add_subplot(gs[0, 0])
@@ -1642,8 +1641,8 @@ def fig_E4():
     ax10 = fig.add_subplot(gs[1, 0])
     ax11 = fig.add_subplot(gs[1, 1], sharey=ax10)
     axes = np.array([[ax00, ax01], [ax10, ax11]])
-    xlabels = {"p": T("e-hailing 비율 (p)", "e-hail proportion ($p$)"),
-               "r": T("AV 비율 (r)", "AV proportion ($r$)")}
+    xlabels = {"p": T("e-hailing 비율 (p)", "e-hail proportion ($\\theta_E$)"),
+               "r": T("AV 비율 (r)", "AV proportion ($\\theta_{AV}$)")}
     letters = {("p", 1): "a", ("p", 5): "b", ("r", 1): "c", ("r", 5): "d"}
     for ri, sweep in enumerate(["p", "r"]):
         for ci, capa_a in enumerate(capa_cols):
@@ -1708,9 +1707,9 @@ def fig_E4b():
     _colorbar_title(cb, T("통행당 사회적\n비용 z/β [h]", "social cost per trip\n$z/\\beta$ [h]"),
                     fontsize=8.5, ticklabelsize=7)
     ax.plot(r_star, p_grid, "o--", color=CAT["red"], lw=2.0, ms=4.5,
-            label=T("비용 최소 AV 비율 r*(p)", "cost-minimizing AV proportion $r^*(p)$"))
-    ax.set_xlabel(T("AV 비율 (r)", "AV proportion ($r$)"))
-    ax.set_ylabel(T("e-hail 비율 (p)", "e-hail proportion ($p$)"))
+            label=T("비용 최소 AV 비율 r*(p)", "cost-minimizing AV proportion $\\theta_{AV}^*(\\theta_E)$"))
+    ax.set_xlabel(T("AV 비율 (r)", "AV proportion ($\\theta_{AV}$)"))
+    ax.set_ylabel(T("e-hail 비율 (p)", "e-hail proportion ($\\theta_E$)"))
     ax.legend(fontsize=8.5, frameon=False, loc="upper center")
     _style_axes(ax)
     ax.grid(False)
@@ -1858,22 +1857,22 @@ def fig_E6():
     mc_lo, mc_hi = df.m_c.min(), df.m_c.max()
     cnorm = matplotlib.colors.PowerNorm(gamma=0.45, vmin=mc_lo, vmax=mc_hi)
     cb_ticks = [20, 40, 60, 80, 120, 160]
-    fig = plt.figure(figsize=(8.8, 3.8))
+    fig = plt.figure(figsize=(7.0, 3.3))
     axes3d, cbs = [], []
     for cidx, capa in enumerate(capas_e6):
         Mc = surf_by_capa[capa]
         ax = fig.add_subplot(1, 2, cidx + 1, projection="3d")
         surf = ax.plot_surface(P, Rm, Mc, cmap="viridis", edgecolor="k",
                                linewidth=0.25, antialiased=True, norm=cnorm)
-        ax.set_xlabel(T("e-hailing 비율 (p)", "e-hail proportion ($p$)"),
+        ax.set_xlabel(T("e-hailing 비율 (p)", "e-hail proportion ($\\theta_E$)"),
                       fontsize=8.5, labelpad=2)
-        ax.set_ylabel(T("AV 비율 (r)", "AV proportion ($r$)"),
+        ax.set_ylabel(T("AV 비율 (r)", "AV proportion ($\\theta_{AV}$)"),
                       fontsize=8.5, labelpad=2)
-        ax.tick_params(labelsize=7.5, pad=1)
+        ax.tick_params(labelsize=8, pad=1)
         ax.set_zlim(mc_lo, mc_hi)
         cb = fig.colorbar(surf, ax=ax, shrink=0.6, pad=0.1, ticks=cb_ticks)
-        _colorbar_title(cb, T("최소 차량 대수 (m)", "minimum fleet size ($m$)"),
-                        fontsize=8.5, ticklabelsize=7)
+        _colorbar_title(cb, T("최소 차량\n대수 (m)", "minimum\nfleet size ($m$)"),
+                        fontsize=8.5, ticklabelsize=7.5)
         axes3d.append(ax)
         cbs.append(cb)
     fig.tight_layout()
@@ -1936,8 +1935,8 @@ def fig_E6b():
         for p, color in p_curves:
             sub = df[(df.capa == capa) & (df.p == p)].sort_values("r")
             ax.plot(sub.r, sub.m_min, color=color, lw=2.1,
-                    label=T(f"p={p}", f"$p$={p}"))
-        ax.set_xlabel(T("AV 비율 (r)", "AV proportion ($r$)"), fontsize=9)
+                    label=T(f"p={p}", f"$\\theta_E$={p}"))
+        ax.set_xlabel(T("AV 비율 (r)", "AV proportion ($\\theta_{AV}$)"), fontsize=9)
         _panel_tag(ax, "a" if capa == 1 else "b")
         _style_axes(ax)
         ax.tick_params(labelsize=8.5)

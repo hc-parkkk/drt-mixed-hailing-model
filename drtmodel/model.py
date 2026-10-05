@@ -8,7 +8,7 @@ Links:   assignment  (i,j) -> (i,j+1)   sigma_E p lambda R n_ij / n^E           
          drop-off    (i,j) -> (i-1,j)   n_ij sqrt(i) v / (kappa sqrt(R))        i >= 1, Eq. (7b)
          absorption  (i,j) -> (i+1,j)   sigma_S (1-p) lambda R w_ij n_ij^HV / n^S   HVs, i + j < capa, Eq. (13)
 Solution: for fixed (n^E, n^S) the flow balance of each fleet type is linear; the equilibrium is found by a
-          damped fixed-point iteration on (n^E, n^S) (Section 2.5 and Appendix A).
+          damped fixed-point iteration on (n^E, n^S) (Section 2.5).
 
 In the code, AV/HV are called AT/HT (autonomous / human-driven taxi) and n^S is called n_eff.
 """
@@ -154,10 +154,10 @@ class HybridDRTModel:
             return np.linalg.lstsq(A, b, rcond=None)[0]
 
     def solve(self, s1_init=None, s2_init=None, damping=0.5, tol=1e-13, max_iter=5000):
-        """Damped fixed-point iteration on (n^E, n^S) (Appendix A).
+        """Damped fixed-point iteration on (n^E, n^S) (Section 2.5).
 
         The default start (n^E = 0.8 m) selects the efficient equilibrium; a nearly empty start can reach
-        the degenerate one at heavy load (Section 3.4).
+        the inefficient one at heavy load (Section 4.3).
         """
         pr = self.pr
         m_at, m_ht = pr.r * pr.m, (1.0 - pr.r) * pr.m

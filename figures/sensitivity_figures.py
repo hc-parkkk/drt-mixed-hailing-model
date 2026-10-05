@@ -2,7 +2,7 @@ import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent))
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent))
 # -*- coding: utf-8 -*-
-"""Figures 11-12 and the robustness table (Table 6) of the paper. Usage: python sensitivity_figures.py F7 --en"""
+"""Figures 12-13 and the robustness table (Table 6) of the paper. Usage: python sensitivity_figures.py F7 --en"""
 
 import os
 import sys
@@ -30,10 +30,10 @@ from drtmodel.optimize import evaluate, find_m_c  # noqa: E402
 # ══════════════════════════════════════════════════════════════════════
 
 M_F = M_V2
-RHO_LEVELS = [0.30, 0.60, 0.85]
-RHO_LABELS = ["부하율 (η) = 0.30", "부하율 (η) = 0.60", "부하율 (η) = 0.85"]
+RHO_LEVELS = [0.30, 0.60, 0.90]   # 0.5, 1, and 1.5 times the reference load
+RHO_LABELS = ["부하율 (η) = 0.30", "부하율 (η) = 0.60", "부하율 (η) = 0.90"]
 RHO_LABELS_EN = ["load factor (η) = 0.30", "load factor (η) = 0.60",
-                 "load factor (η) = 0.85"]
+                 "load factor (η) = 0.90"]
 RHO_COLORS = [CAT["blue"], CAT["aqua"], CAT["red"]]
 
 
@@ -891,7 +891,7 @@ def fig_F7():
     m_ref = 40.0
     de_grid = np.linspace(0.25, 2.5, 20)
     te_grid = np.linspace(1 / 60, 10 / 60, 19)
-    wt_grid = np.linspace(5 / 60, 60 / 60, 20)
+    wt_grid = np.linspace(5 / 60, 90 / 60, 30)   # up to 1.5 times the reference 60 min
 
     rows = []
     for rho in RHO_LEVELS:
@@ -910,7 +910,7 @@ def fig_F7():
                              sigma_S=res["sigma"] or 0.0))
     df = pd.DataFrame(rows)
 
-    fig, axes = plt.subplots(2, 2, figsize=(8.6, 6.6))
+    fig, axes = plt.subplots(2, 2, figsize=(7.0, 5.6))
     rho_labels = _rho_labels()
 
     def _plot_panel(ax, panel, ycol, letter):
@@ -994,7 +994,7 @@ def fig_F8():
     for (p, r), color in zip(pts, pt_colors):
         sub = df[(df.p == p) & (df.r == r)].sort_values("target")
         ax.plot(sub.target, sub.gap_pct, color=color, lw=2.1,
-                label=T(f"p = {p:g}, r = {r:g}", f"$p$ = {p:g}, $r$ = {r:g}"))
+                label=T(f"p = {p:g}, r = {r:g}", f"$\\theta_E$ = {p:g}, $\\theta_{{AV}}$ = {r:g}"))
     ax.set_xlabel(T("street-hail 서비스율 (σₛ)",
                     "street-hail service probability ($\\sigma_S$)"))
     ax.set_ylabel(T("정원 5의 최소 fleet 절감률 [%]",

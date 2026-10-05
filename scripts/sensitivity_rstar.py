@@ -2,7 +2,9 @@ import sys as _sys, pathlib as _pl
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent))
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent))
 _sys.path.insert(0, str(_pl.Path(__file__).resolve().parent.parent / "figures"))
-"""Sensitivity of the cost-minimizing AV share r* and the idle-AV street-hail scenario (Section 6.2, Table 5).
+"""Sensitivity of the cost-minimizing AV share (Section 6.2, Table 5).
+
+Each parameter is set to 0.5 and 1.5 times its reference value, one at a time, with the load factor held at 0.6.
 
 Output: outputs/tables/sensitivity_rstar.csv
 """
@@ -49,21 +51,20 @@ def main():
     rows = [scan("reference", "-")]
     for a in (10.0, 30.0):
         rows.append(scan("alpha_v [$/h] (beta = 30)", a, alpha=a))
-    for b in (20.0, 45.0):
+    for b in (15.0, 45.0):
         rows.append(scan("beta [$/h] (alpha_v = 20)", b, beta=b))
-    for g in (0.5, 2.0):
+    for g in (0.5, 1.5):
         rows.append(scan("value of time / driver wage", g, vot_ratio=g))
-    for v in (25.0, 41.0):
+    for v in (16.5, 49.5):
         rows.append(scan("v [km/h]", v, v=v))
-    for R in (20.0, 50.0):
+    for R in (0.5 * BASE.R, 1.5 * BASE.R):
         rows.append(scan("R [km2] (l = kappa sqrt R)", R, R=R))
     for t in (30.0, 90.0):
         rows.append(scan("t_E^max = t_S^max [min]", t, te_max=t / 60, wt_max=t / 60))
     for d in (0.5, 1.5):
         rows.append(scan("d_e^max [km]", d, de_max=d))
-    for p in (0.5, 0.7):
+    for p in (0.3, 0.9):
         rows.append(scan("p", p, p=p))
-    rows.append(scan("idle AVs also serve street-hail", "on", av_street_idle=True))
     df = pd.DataFrame(rows)
     for c in ("z_star_h", "z_r0_h", "z_r1_h"):
         df[c.replace("_h", "_min")] = df[c] * 60
